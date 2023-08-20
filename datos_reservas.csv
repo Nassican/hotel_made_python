@@ -1,10 +1,2 @@
 Nombre,Identificación,Contacto,Entrada,Salida,TipoHabitacion,MasHabitaciones,CantidadHabitaciones,N° Huespedes,FormaPago
-Jesus,1001095132,,01/01/2000,01/01/2000,,No,,,
-Cristian,123456789,3147093582,01/01/2000,01/01/2000,Doble,No,,1,Tarjeta de Debito
-Cristian,123456789,3147093582,01/01/2000,01/01/2000,Doble,Sí,30,59,Efectivo
-Jesus,2715489752,1549448944,19/08/2023,19/08/2023,,No,,,
-Andres,1597536842,1597532468,19/08/2023,19/08/2023,,No,,,
-juan,21321,123123,19/08/2023,19/08/2023,Doble,No,,,
-juan,21321,123123,19/08/2023,19/08/2023,Doble,Sí,213,,
-juan,21321,123123,19/08/2023,19/08/2023,Doble,Sí,213,,
-Yorth,1234567890,1234567890,19/08/2023,20/08/2023,Doble,Sí,1,2,Tarjeta de Credito
+Jesus,1234567890,1111000000,19/08/2023,19/08/2023,Doble,No,,,1,Tarjeta de Credito

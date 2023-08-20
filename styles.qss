@@ -12,3 +12,12 @@ QPushButton {
     padding-left: 4px;
     padding-right: 4px;
 }
+
+QComboBox {
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
