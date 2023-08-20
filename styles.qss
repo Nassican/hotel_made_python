@@ -1,0 +1,14 @@
+/* styles.qss */
+QLineEdit {
+    padding-left: 2px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+QPushButton {
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
