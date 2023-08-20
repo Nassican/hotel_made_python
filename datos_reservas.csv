@@ -1,2 +1,4 @@
 Nombre,Identificación,Contacto,Entrada,Salida,TipoHabitacion,MasHabitaciones,CantidadHabitaciones,N° Huespedes,FormaPago
-Jesus,1234567890,1111000000,19/08/2023,19/08/2023,Doble,No,,,1,Tarjeta de Credito
+Jesus David Benavides,1234567890,1111111111,20/08/2023,22/08/2023,Doble,No,,,1,Tarjeta de Credito
+Cristian Salazar,0987654321,0000000000,20/08/2023,01/09/2023,Suite,Sí,5,Suite,1,Tarjeta de Debito
+Jesus Enrique,1234567778,1111000000,20/08/2023,20/08/2023,Doble,No,,,1,Tarjeta de Credito

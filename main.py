@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-from PySide6 import QtGui
+from PySide6 import QtGui, QtCore
+
 import sys
 import os
 import json
@@ -152,6 +153,10 @@ class MainWindow(QMainWindow):
 
         huespedes_label = QLabel("N° Huespuedes: *")
         self.huespedes_input = QLineEdit()
+        self.huespedes_input.setValidator(int_validator)
+        self.huespedes_input.setPlaceholderText("N° Huespuedes")
+        habitaciones_disponibles = self.contar_habitaciones_disponibles()
+        self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {habitaciones_disponibles})")
 
         formato_pago_label = QLabel("Forma de Pago: *")
         self.formato_pago_input = QComboBox()
@@ -226,12 +231,9 @@ class MainWindow(QMainWindow):
 
         # Configurar la tabla como no editable
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table.verticalHeader().setDefaultSectionSize(30)  # Cambia el tamaño de las filas
         self.table.verticalHeader().setMinimumSectionSize(30)
         main_layout.addWidget(self.table)
-
 
 
         header = self.table.horizontalHeader()
@@ -279,10 +281,16 @@ class MainWindow(QMainWindow):
         self.estado_input.setPlaceholderText("Estado")
         self.estado_input.addItems(["Disponible", "En proceso de limpieza", "Ocupada", "Fuera de servicio"])
 
-        actualizar_estado_habitacion_button = QPushButton("Actualizar")
-        actualizar_estado_habitacion_button.setCursor(Qt.PointingHandCursor)
-        #actualizar_estado_habitacion_button.connect(self.guardar_habitacion)
-        #actualizar_estado_habitacion_button.connect(lambda: self.actualizar_tabla_habitacion(self.table_habitaciones))
+        tipo_habitacion_label = QLabel("Tipo de Habitación:")
+        self.tipo_habitacion_input = QComboBox()
+        self.tipo_habitacion_input.setCursor(Qt.PointingHandCursor)
+        self.tipo_habitacion_input.setPlaceholderText("Tipo de Habitación")
+        self.tipo_habitacion_input.addItems(["Doble", "Suite"])
+
+        self.actualizar_estado_habitacion_button = QPushButton("Actualizar")
+        self.actualizar_estado_habitacion_button.setCursor(Qt.PointingHandCursor)
+        self.actualizar_estado_habitacion_button.clicked.connect(self.guardar_habitaciones)
+        
 
         
 
@@ -291,6 +299,8 @@ class MainWindow(QMainWindow):
         grid_layout.addWidget(self.no_habitacion_input, 0, 1)  # Fila 0, Columna 1
         grid_layout.addWidget(estado_label, 1, 0)  
         grid_layout.addWidget(self.estado_input, 1, 1) 
+        grid_layout.addWidget(tipo_habitacion_label, 2, 0)
+        grid_layout.addWidget(self.tipo_habitacion_input, 2, 1)
 
         # Agregar el grid_layout al form_layout
         titulo = QLabel("Gestión de Habitaciones")
@@ -315,13 +325,13 @@ class MainWindow(QMainWindow):
         form_layout.addSpacing(0)
 
         form_layout.addLayout(grid_layout_buscar)
-        form_layout.addWidget(actualizar_estado_habitacion_button)
+        form_layout.addWidget(self.actualizar_estado_habitacion_button)
 
         # Tabla en la derecha
         self.table_habitaciones = QTableWidget(self)
         self.table_habitaciones.setWordWrap(True)
         self.table_habitaciones.setColumnCount(2)
-        self.table_habitaciones.setHorizontalHeaderLabels(["N° de Habitacion", "Estado"])
+        self.table_habitaciones.setHorizontalHeaderLabels(["N° de Habitacion", "Estado", "Tipo de Habitación"])
         self.table_habitaciones.setRowCount(0)
         self.cargar_datos_habitaciones(self.table_habitaciones)
         main_layout.addWidget(form_container)
@@ -332,6 +342,7 @@ class MainWindow(QMainWindow):
         self.table_habitaciones.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_habitaciones.verticalHeader().setDefaultSectionSize(30)  # Cambia el tamaño de las filas
         self.table_habitaciones.horizontalHeader().setDefaultSectionSize(200)
+        self.table_habitaciones.setStyleSheet("font-size: 14px;")
         main_layout.addWidget(self.table_habitaciones)
 
 
@@ -339,7 +350,7 @@ class MainWindow(QMainWindow):
         header = self.table_habitaciones.horizontalHeader()
         for i in range(self.table_habitaciones.columnCount()):
             header_section = header.sectionSize(i)
-            header.setStyleSheet(f"QHeaderView::section {{ padding: 5px; font-size: 14px;}}")
+            header.setStyleSheet(f"QHeaderView::section {{ padding: 5px; font-size: 14px; font-weight: bold;}}")
             header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
             header.setMinimumSectionSize(header_section)
             header.setDefaultSectionSize(header_section)
@@ -499,6 +510,21 @@ class MainWindow(QMainWindow):
             else:
                 self.identificacion_input.setStyleSheet("border: 1px solid #ccc;")
 
+    def actualizar_maximo_habitaciones(self, tipo_habitacion):
+        if tipo_habitacion == "Doble":
+            self.cantidad_habitaciones_input.setPlaceholderText("Cantidad (Max 30)")
+        elif tipo_habitacion == "Suite":
+            self.cantidad_habitaciones_input.setPlaceholderText("Cantidad (Max 10)")
+
+    def validar_cantidad_habitaciones(self):
+        max_value = 30 if self.tipo_habitaciones.currentText() == "Doble" else 10
+        cantidad = self.cantidad_habitaciones_input.text()
+        if not cantidad.isdigit():
+            self.cantidad_habitaciones_input.clear()
+        elif int(cantidad) > max_value:
+            self.cantidad_habitaciones_input.setText(str(max_value))
+
+
     # Funcion para editar la fila que seleccionemos
     def editar_fila(self):
         selected_row = self.table.currentRow()
@@ -648,58 +674,135 @@ class MainWindow(QMainWindow):
             table.setItem(row, 9, QTableWidgetItem(reserva["huespedes"]))
             table.setItem(row, 10, QTableWidgetItem(reserva["forma_pago"]))
     
+    def contar_habitaciones_disponibles(self):
+        contador = 0
+        for habitacion in self.habitaciones_data:
+            if habitacion["estado"] == "Disponible":
+                contador += 1
+        return contador
     
     
 
 
     # FUNCIONES PARA GUARDAR LAS HABITACIONES -----------------
-    def actualizar_maximo_habitaciones(self, tipo_habitacion):
-        if tipo_habitacion == "Doble":
-            self.cantidad_habitaciones_input.setPlaceholderText("Cantidad (Max 30)")
-        elif tipo_habitacion == "Suite":
-            self.cantidad_habitaciones_input.setPlaceholderText("Cantidad (Max 10)")
+    def guardar_habitaciones(self):
+        n_habitacion = self.no_habitacion_input.currentText()
+        estado = self.estado_input.currentText()
 
-    def validar_cantidad_habitaciones(self):
-        max_value = 30 if self.tipo_habitaciones.currentText() == "Doble" else 10
-        cantidad = self.cantidad_habitaciones_input.text()
-        if not cantidad.isdigit():
-            self.cantidad_habitaciones_input.clear()
-        elif int(cantidad) > max_value:
-            self.cantidad_habitaciones_input.setText(str(max_value))
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setWindowTitle("Campo Vacío")
+        ok_button = msg_box.addButton("Ok", QMessageBox.AcceptRole)
+        ok_button.setCursor(Qt.PointingHandCursor)
+
+        if not n_habitacion:
+            msg_box.setText("Por favor, ingrese un numero de habitacion valido.")
+            # Agregar el botón "Ok" y configurar el cursor
+            msg_box.exec()
+            return
+        elif not estado:
+            msg_box.setText("Por favor, ingrese un estado valido.")
+            msg_box.exec()
+            return
+    
+        existing_reserva = None
+        for reserva in self.habitaciones_data:
+            if reserva["n_habitacion"] == n_habitacion:
+                existing_reserva = reserva
+                break
+
+        if existing_reserva:
+            # Si ya existe, actualiza el estado en lugar de agregar una nueva entrada
+            existing_reserva["estado"] = estado
+        else:
+            reserva = {
+                "n_habitacion": n_habitacion,
+                "estado": estado,
+                "tipo_habitacion": self.tipo_habitacion_input.currentText()
+            }
+            self.habitaciones_data.append(reserva)
+        
+        self.guardar_datos_csv_habitaciones()
+        self.actualizar_tabla_habitacion(self.table_habitaciones)
+
+    def guardar_datos_csv_habitaciones(self):
+        with open("datos_habitaciones.csv", "w", newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            headers = ["N° Habitacion", "Estado", "Tipo de Habitación"]
+            csvwriter.writerow(headers)
+            for habitacion in self.habitaciones_data:
+                row = [
+                    habitacion["n_habitacion"],
+                    habitacion["estado"],
+                    habitacion["tipo_habitacion"]
+                ]
+                csvwriter.writerow(row)
+
+    def actualizar_tabla_habitacion(self, table):
+    # Ordena la lista self.habitaciones_data por la columna "N° Habitación"
+        self.habitaciones_data.sort(key=lambda x: int(x["n_habitacion"]))
+        table.setRowCount(len(self.habitaciones_data))
+        for row, reserva in enumerate(self.habitaciones_data):
+            for col, value in enumerate(reserva.values()):
+                item = QTableWidgetItem(value)
+                table.setItem(row, col, item)
+    
+                if col == 1:  # Columna "Estado"
+                    if value == "Disponible":
+                        item.setBackground(QtGui.QColor(50, 205, 50))  # Verde
+                    elif value == "En proceso de limpieza":
+                        item.setBackground(QtGui.QColor(255, 215, 0))  # Amarillo
+                    elif value == "Ocupada":
+                        item.setBackground(QtGui.QColor(139, 0, 0))  # Rojo
+                        item.setForeground(QtGui.QColor(255, 255, 255))  # Letras blancas
+                    elif value == "Fuera de servicio":
+                        item.setBackground(QtGui.QColor(184, 134, 11))  # Marrón
+    
+        header = table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)  # Ajustar a contenido en la columna 0
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+
+
+        table.resizeColumnsToContents()
 
     def cargar_datos_habitaciones(self, table):
         try:
             with open("datos_habitaciones.csv", "r", newline="") as csvfile:
                 csvreader = csv.reader(csvfile)
-                headers = next(csvreader)
+                try:
+                    headers = next(csvreader)
+                except StopIteration:
+                    pass
+
                 self.habitaciones_data = []
                 for row in csvreader:
                     habitacion = {
                         "n_habitacion": row[0],
                         "estado": row[1],
+                        "tipo_habitacion": row[2] if len(row) > 2 else ""
                     }
                     self.habitaciones_data.append(habitacion)
-                self.actualizar_tabla(table)
+
+                if not self.habitaciones_data:
+                    self.llenar_habitaciones_disponibles()
+
+                self.actualizar_tabla_habitacion(table)
+
         except FileNotFoundError:
-            pass
+            self.llenar_habitaciones_disponibles()
 
-    def actualizar_tabla_habitacion(self, table):
-        table.setRowCount(len(self.habitaciones_data))
-        for row, reserva in enumerate(self.habitaciones_data):
-            table.setItem(row, 0, QTableWidgetItem(reserva["n_habitacion"]))
-            table.setItem(row, 1, QTableWidgetItem(reserva["estado"]))
 
-    def guardar_datos_csv_habitaciones(self):
-        with open("datos_habitaciones.csv", "w", newline="") as csvfile:
-            csvwriter = csv.writer(csvfile)
-            headers = ["N° Habitacion", "Estado"]
-            csvwriter.writerow(headers)
-            for reserva in self.reservas_data:
-                row = [
-                    reserva["n_habitacion"],
-                    reserva["estado"]
-                ]
-                csvwriter.writerow(row)
+    def llenar_habitaciones_disponibles(self):
+        self.habitaciones_data = []
+        for index in range(1, 41):  # Rango de habitaciones del 1 al 40
+            n_habitacion = f"{index:02}"  # Formato de dos dígitos, por ejemplo, "01", "02", ..., "40"
+            tipo = "Doble" if index <= 30 else "Suite"  # Determinar el tipo de habitación
+            habitacion = {
+                "n_habitacion": n_habitacion,
+                "estado": "Disponible",
+                "tipo": tipo,  # Agregar el tipo de habitación
+            }
+            self.habitaciones_data.append(habitacion)
 
 
 
