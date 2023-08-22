@@ -9,6 +9,25 @@ import os
 import json
 import csv
 
+class NumberValidator(QValidator):
+    def __init__(self, min_value, max_value):
+        super().__init__()
+        self.min_value = min_value
+        self.max_value = max_value
+
+    def validate(self, input_str, pos):
+        if input_str == "":
+            return QValidator.Acceptable, input_str, pos
+
+        try:
+            value = int(input_str)
+            if self.min_value <= value <= self.max_value:
+                return QValidator.Acceptable, input_str, pos
+            else:
+                return QValidator.Invalid, input_str, pos
+        except ValueError:
+            return QValidator.Invalid, input_str, pos
+
 class HabitacionWindow(QDialog):
     def __init__(self, habitaciones, parent=None):
         super().__init__(parent)
@@ -95,7 +114,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle("Hotel Infinito")
-        self.setMinimumSize(1000, 550)
+        self.setMinimumSize(1100, 650)
         self.setWindowIcon(QtGui.QIcon('./icons/hotel-logo.png'))
         styles = ''
         self.app = QApplication.instance()
@@ -148,13 +167,14 @@ class MainWindow(QMainWindow):
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
+        self.habitaciones_disponibles = 4
 
         self.longitud_minima = 10
         main_layout = QHBoxLayout(central_widget)
 
         # Formulario en la izquierda
         form_container = QWidget()
-        form_container.setMaximumWidth(320)  # Ancho máximo deseado
+        form_container.setMaximumWidth(350)  # Ancho máximo deseado
         form_layout = QVBoxLayout(form_container)
 
         grid_layout = QGridLayout()
@@ -198,6 +218,7 @@ class MainWindow(QMainWindow):
         self.tipo_habitacion_input.clicked.connect(self.abrir_ventana_habitacion)
         self.tipo_habitacion_input.setCursor(Qt.PointingHandCursor)
         self.info_habitacion = QLabel("N° Habitación: - Tipo:")
+        #self.info_habitacion.textChanged(self.change_input_info_habitacion)
 
         self.mas_de_una_habitacion_checkbox = QCheckBox("Más habitaciónes:")
         self.mas_de_una_habitacion_checkbox.setCursor(Qt.PointingHandCursor)
@@ -207,27 +228,28 @@ class MainWindow(QMainWindow):
         self.escoger_habitaciones.setCursor(Qt.PointingHandCursor)
         self.escoger_habitaciones.setEnabled(False)
 
-        self.info_mas_habitaciones = QLabel("N° Habitación: - Tipo:")
-        self.info_mas_habitaciones.setWordWrap(True)
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.info_mas_habitaciones.setSizePolicy(size_policy)
         
         self.scroll_area = QListWidget()
 
 
-        def toggle_cantidad_habitaciones(checked):
-            self.escoger_habitaciones.setEnabled(checked)
-            if not checked:
-                self.scroll_area.clear()
 
-        self.mas_de_una_habitacion_checkbox.stateChanged.connect(toggle_cantidad_habitaciones)
 
         huespedes_label = QLabel("N° Huespuedes: *")
         self.huespedes_input = QLineEdit()
         self.huespedes_input.setValidator(int_validator)
         self.huespedes_input.setPlaceholderText("N° Huespuedes")
-        habitaciones_disponibles = self.contar_habitaciones_disponibles()
-        self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {habitaciones_disponibles})")
+        
+        def toggle_cantidad_habitaciones(checked):
+            self.escoger_habitaciones.setEnabled(checked)
+            if not checked:
+                self.habitaciones_disponibles -= self.contador_huespedes
+                self.scroll_area.clear()
+                self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {self.habitaciones_disponibles})")
+                validator = NumberValidator(1, self.habitaciones_disponibles)
+                self.huespedes_input.setValidator(validator) 
+
+        self.mas_de_una_habitacion_checkbox.stateChanged.connect(toggle_cantidad_habitaciones)
 
         formato_pago_label = QLabel("Forma de Pago: *")
         self.formato_pago_input = QComboBox()
@@ -285,12 +307,18 @@ class MainWindow(QMainWindow):
         editar_button = QPushButton("Editar Fila")
         editar_button.setCursor(Qt.PointingHandCursor)
         editar_button.clicked.connect(self.editar_fila)
+        eliminar_fila_button = QPushButton("Eliminar Fila")
+        eliminar_fila_button.setCursor(Qt.PointingHandCursor)
+        # eliminar_fila_button.clicked.connect(self.eliminar_fila)
 
         form_layout.addSpacing(0)
+        botones_eliminar_editar = QGridLayout()
+        botones_eliminar_editar.addWidget(editar_button, 0, 0)
+        botones_eliminar_editar.addWidget(eliminar_fila_button, 0, 1)
 
         form_layout.addLayout(grid_layout_buscar)
         form_layout.addWidget(self.guardar_button)
-        form_layout.addWidget(editar_button)
+        form_layout.addLayout(botones_eliminar_editar)
 
         # Tabla en la derecha
         self.table = QTableWidget(self)
@@ -298,6 +326,8 @@ class MainWindow(QMainWindow):
         self.table.setColumnCount(10)
         self.table.setHorizontalHeaderLabels(["Nombre", "Identificación", "Contacto", "Entrada", "Salida", "N° Habitacion - Tipo", "Mas Habitaciones", "N° Habitaciones - Tipo", "N° Huespedes", "FormaPago"])
         self.table.setRowCount(0)
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
         self.cargar_datos(self.table)
         main_layout.addWidget(form_container)
 
@@ -454,7 +484,10 @@ class MainWindow(QMainWindow):
             total_habitaciones += ''.join(f'N°: {habitacion[0]} - Tipo: {habitacion[1]}\n')
             
 
-
+        if self.check_duplicate_identification(identificacion, nombre):
+            msg_box.setText("Ya existe un registro con el mismo número de identificación.")
+            msg_box.exec()
+            return
         if not nombre:
             msg_box.setText("Por favor, ingrese un nombre.")
             # Agregar el botón "Ok" y configurar el cursor
@@ -742,6 +775,11 @@ class MainWindow(QMainWindow):
         # Actualizar la tabla con los datos editados
         self.actualizar_tabla(self.table)
 
+    def check_duplicate_identification(self, identificacion, nombre):
+        for reserva in self.reservas_data:
+            if reserva["identificacion"] == identificacion and reserva["nombre"] != nombre:
+                return True
+        return False
     # Funcion para buscar clientes
     def buscar_clientes(self):
             buscar_texto = self.buscar_input.text()
@@ -778,13 +816,6 @@ class MainWindow(QMainWindow):
 
         table.resizeRowsToContents()
     
-    def contar_habitaciones_disponibles(self):
-        contador = 0
-        for habitacion in self.habitaciones_data:
-            if habitacion["estado"] == "Disponible":
-                contador += 1
-        return contador
-    
     def obtener_habitaciones(self):
         return self.habitaciones_data
 
@@ -794,13 +825,23 @@ class MainWindow(QMainWindow):
             # Si se ha seleccionado una habitación
             self.habitacion_seleccionada = habitacion_window.habitacion_seleccionada
             if self.habitacion_seleccionada is not None:
-                n_habitacion, tipo_habitacion = self.habitacion_seleccionada
-                self.info_habitacion.setText(f"N°: {n_habitacion} - Tipo: {tipo_habitacion}")
-                print(n_habitacion, tipo_habitacion)
+                self.numero, self.tipo_h = self.habitacion_seleccionada
+                self.info_habitacion.setText(f"N°: {self.numero} - Tipo: {self.tipo_h}")
+                
+                self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {self.habitaciones_disponibles})")
+                validator = NumberValidator(1, self.habitaciones_disponibles)
+                self.huespedes_input.setValidator(validator) 
+                print(self.habitaciones_disponibles)
+                print(self.numero, self.tipo_h)
         else:
             print("No hay habitaciones disponible, No se escogio ninguna habitacion")
 
-
+    def contar_habitaciones_disponibles(self, tipo):
+        contador = 0
+        if tipo:
+            contador += 4
+        return contador
+    
     def open_multi_select_window(self):  # Datos de las habitaciones
         habitaciones_window = HabitacionesWindowMultiple(self.habitaciones_data, self)
         result = habitaciones_window.exec()
@@ -809,21 +850,32 @@ class MainWindow(QMainWindow):
             new_selected_habitaciones = [(item.data(Qt.UserRole), item.data(Qt.UserRole + 1)) for item in selected_items]
 
             for habitacion in new_selected_habitaciones:
+                self.contador_huespedes = 0
                 if habitacion not in self.selected_habitaciones:
-                    self.selected_habitaciones.append(habitacion)    
-            
-            self.change_label_habitaciones()
-            print("Habitaciones seleccionadas:", self.selected_habitaciones)
+                    self.selected_habitaciones.append(habitacion)   
+                    self.contador_huespedes += 4
+                
+                self.habitaciones_disponibles += self.contador_huespedes
+
+                self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {self.habitaciones_disponibles})")
+                validator = NumberValidator(1, self.habitaciones_disponibles)
+                self.huespedes_input.setValidator(validator) 
+
+                self.change_label_habitaciones()
+                print("Habitaciones seleccionadas:", self.selected_habitaciones)
 
     def change_label_habitaciones(self):
+        self.contador_huespedes = 0
         if len(self.selected_habitaciones) != 0:
             self.scroll_area.clear()
-
             for habitacion in self.selected_habitaciones:
                 self.item_text = f"N°: {habitacion[0]} - Tipo: {habitacion[1]}"
                 item = QListWidgetItem(self.item_text)
                 self.scroll_area.addItem(item)
+            print(self.contador_huespedes)
 
+    def change_input_info_habitacion(self):
+        self.huespedes_input.setPlaceholderText(f"N° Huespedes (Max: {self.habitaciones_disponibles})")
 
     # FUNCIONES PARA GUARDAR LAS HABITACIONES -----------------
     def guardar_habitaciones(self):
