@@ -1,20 +1,20 @@
 N° Habitacion,Estado,Tipo de Habitación
-01,Ocupada,Doble
+01,En proceso de limpieza,Doble
 02,Disponible,Doble
-03,Disponible,Doble
-04,Disponible,Doble
-05,Disponible,Doble
+03,Ocupada,Doble
+04,Ocupada,Doble
+05,Ocupada,Doble
 06,Disponible,Doble
 07,Disponible,Doble
 08,Disponible,Doble
-09,Disponible,Doble
-10,Disponible,Doble
-11,Disponible,Doble
-12,Disponible,Doble
-13,Disponible,Doble
-14,Ocupada,Doble
-15,Disponible,Doble
-16,Disponible,Doble
+09,Ocupada,Doble
+10,Ocupada,Doble
+11,Ocupada,Doble
+12,Ocupada,Doble
+13,Ocupada,Doble
+14,Disponible,Doble
+15,Ocupada,Doble
+16,Ocupada,Doble
 17,Disponible,Doble
 18,Disponible,Doble
 19,Disponible,Doble
