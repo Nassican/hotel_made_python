@@ -1,0 +1,24 @@
+ID Hotel,Nombre,Habitaciones Escogidas,Total,Valor a Pagar,Estado Saldo
+00000001,Jesus,"N°: 03 - Tipo: Doble
+N°: 29 - Tipo: Doble
+N°: 30 - Tipo: Doble
+N°: 31 - Tipo: Suite
+","4 Habitaciones
+1 de tipo Suite
+3 de tipo Doble
+
+Total de noches: 2
+","Valor 1 Suite: $ 150.000
+Valor 3 Doble: $ 240.000
+
+Valor a pagar: $ 780.000"
+00000002,Enrique,"N°: 04 - Tipo: Doble
+N°: 05 - Tipo: Doble
+N°: 06 - Tipo: Doble
+","3 Habitaciones
+3 de tipo Doble
+
+Total de noches: 1
+","Valor 3 Doble: $ 240.000
+
+Valor a pagar: $ 240.000"

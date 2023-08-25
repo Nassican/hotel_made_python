@@ -21,3 +21,29 @@ QComboBox {
     padding-right: 4px;
 }
 
+QTableWidget {
+    border: 1px solid black;
+}
+
+QTableWidget QHeaderView::section {
+    background-color: lightgray;
+    padding: 2px;
+    font-weight: bold;
+    border: 1px solid gray;
+    color: black;
+}
+
+QTableWidget::item {
+    padding: 2px;
+}
+
+QTableWidget::item:selected {
+    background-color: lightblue;
+    color: black;
+}
+
+QTableWidget::item[rightAligned] {
+    text-align: right;
+    padding-right: 10px;
+}
+

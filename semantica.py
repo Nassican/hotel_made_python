@@ -1,49 +1,36 @@
-class SemanticNetwork:
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QToolBar, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
+
+class VerticalToolbarExample(QMainWindow):
     def __init__(self):
-        self.nodes = {}
+        super().__init__()
 
-    def add_node(self, node, relationships):
-        self.nodes[node] = relationships
+        # Crear la barra de herramientas vertical
+        self.toolbar = QToolBar()
+        self.addToolBar(self.toolbar)
 
-    def find_activation(self, start_node, target_node, visited=None):
-        if visited is None:
-            visited = set()
+        # Agregar acciones a la barra de herramientas
+        self.action1 = QAction("Acción 1", self)
+        self.action2 = QAction("Acción 2", self)
+        self.action3 = QAction("Acción 3", self)
+        self.toolbar.addAction(self.action1)
+        self.toolbar.addAction(self.action2)
+        self.toolbar.addAction(self.action3)
 
-        if start_node in visited:
-            return None
+        # Crear el diseño principal y agregar la barra de herramientas
+        layout = QVBoxLayout()
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+        
+        # Establecer el diseño vertical de la barra de herramientas
+        self.toolbar.setOrientation(Qt.Vertical)
+        
+        # Agregar la barra de herramientas al layout principal alineada a la derecha
+        layout.addWidget(self.toolbar, alignment=Qt.AlignRight)
 
-        visited.add(start_node)
-
-        if start_node == target_node:
-            return [start_node]
-
-        if start_node not in self.nodes:
-            return None
-
-        for related_node in self.nodes[start_node]:
-            path = self.find_activation(related_node, target_node, visited.copy())
-            if path:
-                return [start_node] + path
-
-        return None
-
-
-# Crear la red semántica
-network = SemanticNetwork()
-
-# Agregar nodos y relaciones
-network.add_node("Ser Vivo", [])
-network.add_node("Persona", ["Ser Vivo"])
-network.add_node("Derecha", [])
-network.add_node("Derecha", ["Persona"])
-network.add_node("Juan", ["Persona"])
-network.add_node("Pasto", [])
-network.add_node("Ingeniero", ["Persona"])
-
-# Realizar búsquedas por intersección
-activation_path_1 = network.find_activation("Pasto", "Ingeniero")
-activation_path_2 = network.find_activation("Juan", "Persona")
-
-# Imprimir resultados
-print("Activación entre Pasto e Ingeniero:", activation_path_1)
-print("Activación entre Pasto y Persona:", activation_path_2)
+if __name__ == '__main__':
+    app = QApplication([])
+    window = VerticalToolbarExample()
+    window.show()
+    app.exec()

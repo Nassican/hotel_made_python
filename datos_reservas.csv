@@ -1,27 +1,8 @@
 Nombre,Identificación,Id Hotel,Contacto,Entrada,Salida,N° Habitación -Tipo,Mas Habitaciones,N° Habitaciones - Tipo,N° Huespedes,FormaPago
-Andres,1234444444,00000003,1111111111,22/08/2023,22/08/2023,N°: 03 - Tipo: Doble,Sí,"N°: 02 - Tipo: Doble
-N°: 03 - Tipo: Doble
-N°: 04 - Tipo: Doble
-",16,Tarjeta de Credito
-Jesus,1234875698,00000004,3125478896,22/08/2023,22/08/2023,N°: 16 - Tipo: Doble,Sí,"N°: 15 - Tipo: Doble
-N°: 16 - Tipo: Doble
-",4,Efectivo
-Jesus,1234567890,00000005,7845698745,22/08/2023,22/08/2023,N°: 10 - Tipo: Doble,Sí,"N°: 09 - Tipo: Doble
-N°: 10 - Tipo: Doble
-",12,Tarjeta de Debito
-Jesus,1597532486,00000005,1542637859,22/08/2023,22/08/2023,N°: 03 - Tipo: Doble,Sí,"N°: 06 - Tipo: Doble
-N°: 07 - Tipo: Doble
-N°: 08 - Tipo: Doble
-",16,Tarjeta de Debito
-Andres,1597534682,00000006,1287142579,22/08/2023,22/08/2023,N°: 11 - Tipo: Doble,Sí,"N°: 15 - Tipo: Doble
-N°: 16 - Tipo: Doble
-N°: 09 - Tipo: Doble
-N°: 10 - Tipo: Doble
-N°: 11 - Tipo: Doble
-N°: 12 - Tipo: Doble
-N°: 13 - Tipo: Doble
-",16,Tarjeta de Debito
-Andres,1597534682,00000007,1287142579,22/08/2023,22/08/2023,N°: 06 - Tipo: Doble,Sí,"N°: 09 - Tipo: Doble
-N°: 10 - Tipo: Doble
-N°: 11 - Tipo: Doble
-",16,Tarjeta de Debito
+Jesus,1234567890,00000001,1574898545,25/08/2023,27/08/2023,N°: 03 - Tipo: Doble,Sí,"N°: 29 - Tipo: Doble
+N°: 30 - Tipo: Doble
+N°: 31 - Tipo: Suite
+",20,Tarjeta de Credito
+Enrique,1111111111,00000002,7777777777,24/08/2023,25/08/2023,N°: 04 - Tipo: Doble,Sí,"N°: 05 - Tipo: Doble
+N°: 06 - Tipo: Doble
+",12,Efectivo
