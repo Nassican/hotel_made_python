@@ -21,6 +21,10 @@ class OutlineLabel(QLabel):
         painter.setPen(self.palette().color(QPalette.WindowText))  # Restaurar el color de texto original
        # painter.drawText(event.rect(), Qt.AlignmentFlag.AlignCenter, self.text())
 
+def actualizar_hora(self):
+        current_time_colombia = QDateTime.currentDateTime().toTimeZone(self.tz_colombia)
+        hora_colombia = current_time_colombia.toString("HH:mm:ss zz")
+        self.campo_horac.setText(hora_colombia)
 
 def ui_login(self):
   #CUADRO DERECHA
@@ -29,6 +33,18 @@ def ui_login(self):
   #cuadro_frame.setGeometry(10, 10, 1200, 600)  # Ajusta la geometría según tus necesidades
   #cuadro_frame.setStyleSheet("background-color:red;")
   cuadro_frame.setStyleSheet("background: transparent;")
+  if self.central_widget:
+    self.central_widget.deleteLater()
+    
+  central_widget = QWidget(self)
+  self.setCentralWidget(central_widget)
+  # Crear un QFrame para el cuadro
+  cuadro_frame = QWidget(self)
+  cuadro_frame.setGeometry(100, 100, 400, 300)  # Ajusta la geometría según tus necesidades
+  cuadro_frame.setStyleSheet("background-color: blue;")
+
+
+  self.central_widget = cuadro_frame
 
   cuadro_layout = QVBoxLayout(cuadro_frame)
   cuadro_layout.setContentsMargins(0, 0, 0, 0) 
@@ -80,6 +96,9 @@ def ui_login(self):
   current_time_colombia= datetime.now(tz_colombia)
   hora_colombia = current_time_colombia.strftime("%H:%M:%S %Z")
   campo_horac.setText(hora_colombia)
+  self.timer = QTimer(self)
+  self.timer.timeout.connect(self.actualizar_hora)
+  self.timer.start(1000) 
   #--------------------------------------------------------
   etiqueta_hra= OutlineLabel("hola")
   etiqueta_hra.setStyleSheet(color)
