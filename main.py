@@ -689,6 +689,7 @@ class MainWindow(QMainWindow):
         # Obtener una referencia al botón que fue clicado
         boton_clicado = self.sender()
         # Mostrar un cuadro de diálogo de confirmación
+        
         confirm_dialog = QMessageBox(self)
         confirm_dialog.setIcon(QMessageBox.Question)
         confirm_dialog.setWindowTitle("Confirmar Pago")
@@ -699,15 +700,13 @@ class MainWindow(QMainWindow):
         confirm_dialog.setDefaultButton(QMessageBox.No)
 
         # Obtener el botón "Sí" del cuadro de diálogo
+        yes_button = confirm_dialog.button(QMessageBox.Yes)
+        confirm_dialog.setButtonText(QMessageBox.Yes, "Confirmar")
+        yes_button.setCursor(QCursor(Qt.PointingHandCursor))
 
-        confirm_dialog.addButton("Confirmar", QMessageBox.Yes)
-        confirm_dialog.addButton("Cancelar", QMessageBox.No)
-
-        confirm_button = confirm_dialog.button(QMessageBox.Yes)
-        confirm_button.setCursor(Qt.PointingHandCursor)
-
-        cancel_button = confirm_dialog.button(QMessageBox.No)
-        cancel_button.setCursor(Qt.PointingHandCursor)
+        no_button = confirm_dialog.button(QMessageBox.No)
+        confirm_dialog.setButtonText(QMessageBox.No, "Cancelar")
+        no_button.setCursor(QCursor(Qt.PointingHandCursor))
 
         # Obtener la fila correspondiente en la tabla
         result = confirm_dialog.exec()
