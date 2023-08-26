@@ -1,24 +1,59 @@
 ID Hotel,Nombre,Habitaciones Escogidas,Total,Valor a Pagar,Estado Saldo
-00000001,Jesus,"N°: 03 - Tipo: Doble
-N°: 29 - Tipo: Doble
-N°: 30 - Tipo: Doble
-N°: 31 - Tipo: Suite
-","4 Habitaciones
-3 de tipo Doble
-1 de tipo Suite
-
-Total de noches: 2
-","Valor 3 Doble: $ 240.000
-Valor 1 Suite: $ 150.000
-
-Valor a pagar: $ 780.000"
-00000002,Enrique,"N°: 04 - Tipo: Doble
-N°: 05 - Tipo: Doble
-N°: 06 - Tipo: Doble
+00000001,Jesus,"N°: 15 - Tipo: Doble
+N°: 19 - Tipo: Doble
+N°: 20 - Tipo: Doble
 ","3 Habitaciones
 3 de tipo Doble
 
 Total de noches: 1
 ","Valor 3 Doble: $ 240.000
 
-Valor a pagar: $ 240.000"
+Valor a pagar: $ 240.000",Pagado
+00000002,Entique,"N°: 22 - Tipo: Doble
+N°: 24 - Tipo: Doble
+N°: 25 - Tipo: Doble
+","3 Habitaciones
+3 de tipo Doble
+
+Total de noches: 1
+","Valor 3 Doble: $ 240.000
+
+Valor a pagar: $ 240.000",Pagado
+00000003,Veneno,"N°: 08 - Tipo: Doble
+N°: 26 - Tipo: Doble
+N°: 27 - Tipo: Doble
+N°: 28 - Tipo: Doble
+","4 Habitaciones
+4 de tipo Doble
+
+Total de noches: 1
+","Valor 4 Doble: $ 320.000
+
+Valor a pagar: $ 320.000",Pagado
+00000004,Beelzebu,"N°: 03 - Tipo: Doble
+N°: 05 - Tipo: Doble
+N°: 06 - Tipo: Doble
+N°: 07 - Tipo: Doble
+N°: 08 - Tipo: Doble
+N°: 04 - Tipo: Doble
+","6 Habitaciones
+6 de tipo Doble
+
+Total de noches: 4
+","Valor 6 Doble: $ 480.000
+
+Valor a pagar: $ 1.920.000",Pagado
+00000005,andrew,"N°: 10 - Tipo: Doble
+N°: 29 - Tipo: Doble
+N°: 30 - Tipo: Doble
+N°: 31 - Tipo: Suite
+N°: 32 - Tipo: Suite
+","5 Habitaciones
+3 de tipo Doble
+2 de tipo Suite
+
+Total de noches: 1
+","Valor 3 Doble: $ 240.000
+Valor 2 Suite: $ 300.000
+
+Valor a pagar: $ 540.000",Pendiente

@@ -1,8 +1,22 @@
-Nombre,Identificación,Id Hotel,Contacto,Entrada,Salida,N° Habitación -Tipo,Mas Habitaciones,N° Habitaciones - Tipo,N° Huespedes,FormaPago
-Jesus,1234567890,00000001,1574898545,25/08/2023,27/08/2023,N°: 03 - Tipo: Doble,Sí,"N°: 29 - Tipo: Doble
+Nombre,Identificación,Id Hotel,Contacto,Entrada,Salida,N° Habitación -Tipo,Mas Habitaciones,N° Habitaciones - Tipo,N° Huespedes,FormaPago,Estado Pago
+Jesus,1238756845,00000001,1234878964,25/08/2023,26/08/2023,N°: 15 - Tipo: Doble,No,"N°: 19 - Tipo: Doble
+N°: 20 - Tipo: Doble
+",12,Tarjeta de Credito,Pagado
+Entique,1238756848,00000002,1234878964,25/08/2023,26/08/2023,N°: 22 - Tipo: Doble,No,"N°: 24 - Tipo: Doble
+N°: 25 - Tipo: Doble
+",12,Tarjeta de Credito,Pagado
+Veneno,1238777777,00000003,1234878964,25/08/2023,26/08/2023,N°: 08 - Tipo: Doble,No,"N°: 26 - Tipo: Doble
+N°: 27 - Tipo: Doble
+N°: 28 - Tipo: Doble
+",16,Tarjeta de Credito,Pagado
+Beelzebu,1597846230,00000004,1548962357,25/08/2023,29/08/2023,N°: 03 - Tipo: Doble,True,"N°: 05 - Tipo: Doble
+N°: 06 - Tipo: Doble
+N°: 07 - Tipo: Doble
+N°: 08 - Tipo: Doble
+N°: 04 - Tipo: Doble
+",24,Tarjeta de Credito,Pagado
+andrew,7845954651,00000005,1231111111,25/08/2023,26/08/2023,N°: 10 - Tipo: Doble,Sí,"N°: 29 - Tipo: Doble
 N°: 30 - Tipo: Doble
 N°: 31 - Tipo: Suite
-",20,Tarjeta de Credito
-Enrique,1111111111,00000002,7777777777,24/08/2023,25/08/2023,N°: 04 - Tipo: Doble,Sí,"N°: 05 - Tipo: Doble
-N°: 06 - Tipo: Doble
-",12,Efectivo
+N°: 32 - Tipo: Suite
+",20,Tarjeta de Credito,Pendiente

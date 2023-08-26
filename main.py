@@ -364,8 +364,8 @@ class MainWindow(QMainWindow):
         # Tabla en la derecha
         self.table = QTableWidget(self)
         self.table.setWordWrap(True)
-        self.table.setColumnCount(11)
-        self.table.setHorizontalHeaderLabels(["Nombre", "Identificación", "Id Hotel","Contacto", "Entrada", "Salida", "N° Habitacion - Tipo", "Mas Habitaciones", "N° Habitaciones - Tipo", "N° Huespedes", "FormaPago"])
+        self.table.setColumnCount(12)
+        self.table.setHorizontalHeaderLabels(["Nombre", "Identificación", "Id Hotel","Contacto", "Entrada", "Salida", "N° Habitacion - Tipo", "Mas Habitaciones", "N° Habitaciones - Tipo", "N° Huespedes", "FormaPago", "Estado Pago"])
         self.table.setRowCount(0)
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()
@@ -431,12 +431,31 @@ class MainWindow(QMainWindow):
         self.tipo_habitacion_input.setPlaceholderText("Tipo de Habitación")
         self.tipo_habitacion_input.addItems(["Doble", "Suite"])
 
+        liberar_habitaciones_label = QLabel("Liberar Habitaciones:")
+        self.liberar_habitaciones_text_buscar = QLineEdit()
+        self.liberar_habitaciones_input = QComboBox()
+        self.liberar_habitaciones_input.setCursor(Qt.PointingHandCursor)
+        self.liberar_habitaciones_input.setPlaceholderText("Liberar Habitaciones")
+        self.liberar_habitaciones_button = QPushButton("Liberar")
+        self.liberar_habitaciones_button.setCursor(Qt.PointingHandCursor)
+        self.liberar_habitaciones_button.clicked.connect(self.liberar_habitaciones)
+
+        self.data = self.llenar_data_con_id_hotel("datos_reservas.csv")
+        self.filtered_data = self.data[:]
+        self.liberar_habitaciones_input.addItems(self.filtered_data)
+        
+        self.liberar_habitaciones_text_buscar.textChanged.connect(self.filter_data)
+
+
+
+
         self.actualizar_estado_habitacion_button = QPushButton("Actualizar")
         self.actualizar_estado_habitacion_button.setCursor(Qt.PointingHandCursor)
         self.actualizar_estado_habitacion_button.clicked.connect(self.guardar_habitaciones)
         
 
-        
+        spacer_item = QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)  # Espacio vertical de 20 píxeles
+
 
         # Agregar elementos al grid_layout
         grid_layout.addWidget(no_habitacion_label, 0, 0)  # Fila 0, Columna 0
@@ -445,6 +464,10 @@ class MainWindow(QMainWindow):
         grid_layout.addWidget(self.estado_input, 1, 1) 
         grid_layout.addWidget(tipo_habitacion_label, 2, 0)
         grid_layout.addWidget(self.tipo_habitacion_input, 2, 1)
+        grid_layout.addWidget(liberar_habitaciones_label, 4, 0)
+        grid_layout.addWidget(self.liberar_habitaciones_text_buscar, 4, 1)
+        grid_layout.addWidget(self.liberar_habitaciones_input, 5, 1)
+        grid_layout.addWidget(self.liberar_habitaciones_button, 6, 1)
 
         # Agregar el grid_layout al form_layout
         titulo = QLabel("Gestión de Habitaciones")
@@ -543,13 +566,92 @@ class MainWindow(QMainWindow):
 
         form_layout.addLayout(grid_layout)
         main_layout.addWidget(form_container)
-        self.cargar_datos_facturacion_csv(self.table_facturacion)
+        self.cargar_y_guardar_datos_facturacion(self.table_facturacion)
         self.table_facturacion.resizeRowsToContents()
         main_layout.addWidget(self.table_facturacion)
 
         self.central_widget = main_layout
+    
+    def filter_data(self, text):
+        self.filtered_data = [item for item in self.data if text.lower() in item.lower()]
+        self.liberar_habitaciones_input.clear()
+        self.liberar_habitaciones_input.addItems(self.filtered_data)
+
+    def llenar_data_con_id_hotel(self, filename):
+        values = []
+        with open(filename, "r", newline="") as csvfile:
+            csvreader = csv.reader(csvfile)
+            next(csvreader)  # Saltar la primera fila de encabezados si es necesario
+            for row in csvreader:
+                if row:  # Asegurarse de que la fila no esté vacía
+                    values.append(row[2])
+        return values
+    
+    def liberar_habitaciones(self):
+        selected_id_hotel = self.liberar_habitaciones_input.currentText()  # Obtén el id-hotel seleccionado del combo box
+        nuevo_estado = "Disponible"
+        cliente_encontrado = None
+        for cliente in self.reservas_data:
+            if cliente["id-hotel"] == selected_id_hotel:
+                cliente_encontrado = cliente
+                break
+
+        if cliente_encontrado:
+            habitaciones_a_liberar = []
+            habitacion = cliente_encontrado["n_t_habitacion"]
+            habitaciones = cliente_encontrado["total_habitaciones"].split("\n")
+            total_habitaciones = habitacion + "\n" + "\n".join(habitaciones)
+
+            items_column_2 = total_habitaciones.split('\n')
+
+            for habitacion in items_column_2:
+                match = re.search(r'N°: (\d+) - Tipo: (\w+)', habitacion)
+                if match:
+                    numero = match.group(1) # Numero 01
+                    tipo = match.group(2)   # Tipo Doble
+                    habitaciones_a_liberar.append((numero, tipo))
+
+        with open("datos_habitaciones.csv", "w", newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            headers = ["N° Habitacion", "Estado", "Tipo de Habitación"]
+            csvwriter.writerow(headers)
+            for habitacion in habitaciones_a_liberar:
+                print(f"Habitacion: {habitaciones_a_liberar}")
+                for new_habitacion in self.habitaciones_data:
+                    if new_habitacion["n_habitacion"] == habitacion[0]:
+                        new_habitacion["estado"] = nuevo_estado
+                        print(f"New Habitacion: {new_habitacion}")
+                        row = [
+                            new_habitacion["n_habitacion"],
+                            new_habitacion["estado"],
+                            new_habitacion["tipo_de_habitacion"]
+                        ]
+                        csvwriter.writerow(row)    
+        self.actualizar_tabla_habitacion(self.table_habitaciones)
+        self.guardar_datos_csv_habitaciones()
 
     def cargar_datos_facturacion_csv(self, table):
+        try:
+            with open("datos_facturacion.csv", "r", newline="") as csvfile:
+                csvreader = csv.reader(csvfile)
+                headers = next(csvreader)
+                self.datos_facturacion = []
+                for row in csvreader:
+                    user = {
+                        "id-hotel": row[0],
+                        "nombre": row[1],
+                        "habitaciones_escogidas": row[2],
+                        "total": row[3],
+                        "valor_a_pagar": row[4],
+                        "estado_saldo": row[5],
+                    }
+                    self.datos_facturacion.append(user)
+                self.actualizar_tabla_facturacion(table)
+        except FileNotFoundError:
+            print("Error")
+            self.cargar_datos_facturacion(table)
+
+    def cargar_y_guardar_datos_facturacion(self, table):
         datos_habitaciones_totales = []
         try:
             with open("datos_reservas.csv", "r", newline="") as csvfile:
@@ -626,14 +728,13 @@ class MainWindow(QMainWindow):
                         "habitaciones_escogidas": total_habitaciones,
                         "total": total_n_tipo,
                         "valor_a_pagar": valor_a_pagar_str,
+                        "estado_saldo": row[11],
                     }
 
                     self.datos_facturacion.append(reserva)
 
-                self.guardar_facturacion_csv()
-
                     # Guardar esos datos
-                    
+                    self.guardar_facturacion_csv()
 
                 self.actualizar_tabla_facturacion(table)
         except FileNotFoundError:
@@ -651,6 +752,7 @@ class MainWindow(QMainWindow):
                     facturacion["habitaciones_escogidas"],
                     facturacion["total"],
                     facturacion["valor_a_pagar"],
+                    facturacion["estado_saldo"],
                 ]
                 csvwriter.writerow(row)
 
@@ -665,12 +767,16 @@ class MainWindow(QMainWindow):
             table.setItem(row, 2, QTableWidgetItem(reserva["habitaciones_escogidas"]))
             table.setItem(row, 3, QTableWidgetItem(reserva["total"]))
             table.setItem(row, 4, QTableWidgetItem(reserva["valor_a_pagar"]))
+            table.setItem(row, 5, QTableWidgetItem(reserva["estado_saldo"]))
 
             boton_estado = QPushButton("Confirmar\nPago")
             boton_estado.setCursor(Qt.PointingHandCursor)
             boton_estado.setStyleSheet("font-size: 15px;")  # Ajusta el tamaño de la fuente
             boton_estado.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             boton_estado.clicked.connect(self.cambiar_estado_saldo)
+
+
+
             
         
             # Configurar el botón en la celda correspondiente
@@ -712,11 +818,48 @@ class MainWindow(QMainWindow):
         result = confirm_dialog.exec()
         if result == QMessageBox.Yes:
             # Cambiar el contenido de la celda en la columna 5 a "Pagado"
-            item = QTableWidgetItem("Pagado")
+            nuevo_estado = "Pagado"
             row = self.table_facturacion.indexAt(boton_clicado.pos()).row()
-            self.table_facturacion.setItem(row, 5, item)
-            print(f"Fila a cambiar el estado: {row}")
+            id_hotel = self.table_facturacion.item(row, 0).text()
+            
+            col = 11  # Columna 5 en este caso
+            self.cambiar_estado_pago_en_reservas(row, id_hotel, nuevo_estado)
+            self.actualizar_tabla_facturacion(self.table_facturacion)
+            print(f"Fila a cambiar el estado: {self.reservas_data}")
+            print(f"Fila a cambiar el estado: {row}, Codigo: {id_hotel}")
+            self.guardar_facturacion_csv()
+            
+        valor = "Pagado"
 
+    def cambiar_estado_pago_en_reservas(self, row, id_hotel, nuevo_estado):
+        with open("datos_reservas.csv", "r", newline="") as csvfile:
+            csvreader = csv.reader(csvfile)
+            rows = list(csvreader)  # Lee todas las filas existentes
+
+        for i, reserva in enumerate(self.reservas_data):
+            if reserva["id-hotel"] == id_hotel:
+                self.reservas_data[i]["estado_pagos"] = nuevo_estado
+                rows[row + 1] = [
+                    reserva["nombre"],
+                    reserva["identificacion"],
+                    reserva["id-hotel"],
+                    reserva["contacto"],
+                    reserva["entrada"],
+                    reserva["salida"],
+                    reserva["n_t_habitacion"],
+                    reserva["mas_habitaciones"],
+                    reserva["total_habitaciones"],
+                    reserva["huespedes"],
+                    reserva["forma_pago"],
+                    reserva["estado_pagos"],
+                ]
+
+        # Escribe la lista actualizada de filas en el archivo CSV
+        with open("datos_reservas.csv", "w", newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            for row in rows:
+                csvwriter.writerow(row)
+      
     def on_checkbox_checked(self):
         if self.mas_de_una_habitacion_checkbox.isChecked():
             if not self.info_habitacion.text():
@@ -850,7 +993,8 @@ class MainWindow(QMainWindow):
             "mas_habitaciones": self.mas_de_una_habitacion_checkbox.isChecked(),
             "total_habitaciones": total_habitaciones,
             "huespedes": self.huespedes_input.text(),
-            "forma_pago": self.formato_pago_input.currentText()
+            "forma_pago": self.formato_pago_input.currentText(),
+            "estado_pagos": "Pendiente",
         }
 
         habitacion = f"N°: {n_habitacion} - Tipo: {tipo_habitacion}"
@@ -880,7 +1024,7 @@ class MainWindow(QMainWindow):
     def guardar_datos_csv(self):
         with open("datos_reservas.csv", "w", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
-            headers = ["Nombre", "Identificación", "Id Hotel","Contacto", "Entrada", "Salida", "N° Habitación -Tipo", "Mas Habitaciones", "N° Habitaciones - Tipo" , "N° Huespedes", "FormaPago"]
+            headers = ["Nombre", "Identificación", "Id Hotel","Contacto", "Entrada", "Salida", "N° Habitación -Tipo", "Mas Habitaciones", "N° Habitaciones - Tipo" , "N° Huespedes", "FormaPago", "Estado Pago"]
             csvwriter.writerow(headers)
             for reserva in self.reservas_data:
                 row = [
@@ -894,7 +1038,8 @@ class MainWindow(QMainWindow):
                     "Sí" if reserva["mas_habitaciones"] else "No",
                     reserva["total_habitaciones"],
                     reserva["huespedes"],
-                    reserva["forma_pago"]
+                    reserva["forma_pago"],
+                    reserva["estado_pagos"],
                 ]
                 csvwriter.writerow(row)
 
@@ -912,7 +1057,7 @@ class MainWindow(QMainWindow):
             table.setItem(row, 8, QTableWidgetItem(reserva["total_habitaciones"]))
             table.setItem(row, 9, QTableWidgetItem(reserva["huespedes"]))
             table.setItem(row, 10, QTableWidgetItem(reserva["forma_pago"]))
-
+            table.setItem(row, 11, QTableWidgetItem(reserva["estado_pagos"]))
 
     def cargar_datos(self, table):
         try:
@@ -932,7 +1077,8 @@ class MainWindow(QMainWindow):
                         "mas_habitaciones": row[7] == "Sí",
                         "total_habitaciones": row[8],
                         "huespedes": row[9],
-                        "forma_pago": row[10]
+                        "forma_pago": row[10],
+                        "estado_pagos": row[11]
                     }
                     self.reservas_data.append(reserva)
                 self.actualizar_tabla(table)
@@ -941,11 +1087,11 @@ class MainWindow(QMainWindow):
 
     # Funcion para verificar longitud minima identificacion
     def validar_longitud_minima(self):
-            texto = self.identificacion_input.text()
-            if len(texto) < self.longitud_minima:
-                self.identificacion_input.setStyleSheet("border: 1px solid red;")
-            else:
-                self.identificacion_input.setStyleSheet("border: 1px solid #ccc;")
+        texto = self.identificacion_input.text()
+        if len(texto) < self.longitud_minima:
+            self.identificacion_input.setStyleSheet("border: 1px solid red;")
+        else:
+            self.identificacion_input.setStyleSheet("border: 1px solid #ccc;")
 
     def eliminar_fila(self, row):
         selected_row = self.table.currentRow()
@@ -1135,7 +1281,6 @@ class MainWindow(QMainWindow):
             msg_box.exec()
             return
         
-    
         self.reservas_data[row] = {
             "nombre": self.nombre_input.text(),
             "identificacion": self.identificacion_input.text(),
@@ -1147,7 +1292,8 @@ class MainWindow(QMainWindow):
             "mas_habitaciones": self.mas_de_una_habitacion_checkbox.isChecked(),
             "total_habitaciones": total_habitaciones,
             "huespedes": self.huespedes_input.text(),
-            "forma_pago": self.formato_pago_input.currentText()
+            "forma_pago": self.formato_pago_input.currentText(),
+            "estado_pagos": "Pendiente",
         }
 
         nuevo_estado = "Ocupada"
@@ -1179,7 +1325,6 @@ class MainWindow(QMainWindow):
         self.guardar_button.clicked.connect(self.guardar_reserva)
         self.reservas_recepcion_ui()
         
-
     def check_duplicate_identification(self, identificacion, nombre):
         for reserva in self.reservas_data:
             if reserva["identificacion"] == identificacion and reserva["nombre"] != nombre:
@@ -1307,7 +1452,6 @@ class MainWindow(QMainWindow):
                     ]
                     csvwriter.writerow(row)
         
-
     def change_label_habitaciones(self):
         if len(self.selected_habitaciones) != 0:
             self.scroll_area.clear()
@@ -1463,7 +1607,6 @@ class MainWindow(QMainWindow):
                 self.actualizar_tabla_buscar_habitacion(self.table_habitaciones, resultados)
             else:
                 QMessageBox.information(self, "Búsqueda", "No se encontraron resultados.")
-
     
     def actualizar_tabla_buscar_habitacion(self, table, data):
         table.setRowCount(len(data))
