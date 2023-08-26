@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle("Hotel Finito")
-        self.setMinimumSize(1100, 650)
+        self.setMinimumSize(1200, 670)
         self.setWindowIcon(QtGui.QIcon('./icons/hotel-logo.png'))
         styles = ''
         self.app = QApplication.instance()
@@ -1429,6 +1429,67 @@ class MainWindow(QMainWindow):
             if item is not None and item.text() == f"N°: {habitacion[0]} - Tipo: {habitacion[1]}":
                 self.scroll_area.takeItem(index)
                 break
+    
+    def actualizar_hora(self):
+        current_time = QDateTime.currentDateTime()
+        hora_actual = current_time.toString("HH:mm:ss")
+        fecha_actual = current_time.toString("dd-MM-yyyy")
+        self.campo_horac.setText(f"Hora: {hora_actual}\nFecha: {fecha_actual}")
+
+
+    def mostrar_ayuda(self, index):
+        if index == 0:  # Índice 1 corresponde a "Ayuda"
+            mensaje = "Gestion de usuarios agrega, edita a los clientes quienes seran agregados con su respectiva habitacion."
+            
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("GESTION USUARIOS")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/usuario.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+            
+            message_box.addButton(QMessageBox.Ok)
+            
+            message_box.exec_()
+
+        if index ==1:
+            mensaje = "gestion de habitaciones, este apartado te permite poder agregar, cambiar estado y visualizar las habitaciones."
+            
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("GESTION HABITACIONES")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/habitaciones.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+            
+            message_box.addButton(QMessageBox.Ok)
+            
+            message_box.exec_()
+        if index ==2:
+            mensaje = "Facturacion, este apartado se encarga de cobrar el valor que se calculara por dias estancia y tipo habitacion"
+            
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("FACTURACION")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/facturacion.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+            
+            message_box.addButton(QMessageBox.Ok)
+            
+            message_box.exec_()
 
     def actualizar_estado_habitaciones_seleccionadas(self):
         nuevo_estado = "Ocupada"
