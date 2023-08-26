@@ -2,7 +2,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6 import QtGui, QtCore
-from ui_login import ui_login
+from PySide6.QtCore import *
 
 import sys
 import os
@@ -125,6 +125,10 @@ class MainWindow(QMainWindow):
         self.precio_habitaciones_double = 80000
         self.precio_habitaciones_suite = 150000
         locale.setlocale(locale.LC_ALL, 'es_CO.utf8')
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.actualizar_hora)
+        self.timer.start(1000)
         
 
         self.reservas_data = []
@@ -134,11 +138,15 @@ class MainWindow(QMainWindow):
 
         self.habitaciones_seleccionadas = []  # Inicialmente, ninguna habitación seleccionada
 
-        icon_size = QSize(32, 32)
+        icon_size = QSize(50, 50)
 
         exitAction = QAction(QIcon('./icons/x-mark-64.png'), 'Salir', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.triggered.connect(self.close)
+
+        reserva_inicio = QAction(QIcon('./icons/inicio.png'), 'Reservas', self)
+        reserva_inicio.setShortcut('Ctrl+R')
+        reserva_inicio.triggered.connect(self.ui_login)
 
         reserva_ui = QAction(QIcon('./icons/usuario.png'), 'Reservas', self)
         reserva_ui.setShortcut('Ctrl+R')
@@ -153,6 +161,8 @@ class MainWindow(QMainWindow):
 
         self.toolbar = QToolBar()
         self.addToolBar(self.toolbar)
+        self.toolbar.addAction(reserva_inicio)
+        self.toolbar.addSeparator()
         self.toolbar.addAction(reserva_ui)
         self.toolbar.addSeparator()
         self.toolbar.addAction(reserva_ui2)
@@ -176,20 +186,88 @@ class MainWindow(QMainWindow):
         sub_menu.addAction(sub_action1)
         sub_menu.addAction(sub_action2)
 
-
-        
-
         self.central_widget = None
 
         self.gestion_habitacion_ui()
         self.reservas_recepcion_ui()
-        ui_login(self)
+        self.ui_login()
 
     def set_app_style(self, style):
         app.setStyle(style)
 
+    def ui_login(self):
+        if self.central_widget:
+          self.central_widget.deleteLater()
+
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+
+        main_layout = QHBoxLayout(central_widget)
+
+        # Formulario en la izquierda
+        form_container = QWidget()  # Ancho máximo deseado
+
+        form_layout = QVBoxLayout(form_container)
+        grid_layout = QGridLayout()
+
+        titulo = QLabel("Hotel Finito")
+        subtitulo = QLabel("App de Administracion de Hotel")
+
+        nombre_jesus = QLabel("Jesus David Benavides Chicaiza")
+        nombre_cristian = QLabel("Cristian Yamith Salazar")
+
+        titulo.setStyleSheet("font-size: 100px; font-weight: bold; ")
+        titulo.setWordWrap(True)
+        titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        subtitulo.setStyleSheet("font-size: 50px; font-weight: bold; ")
+        subtitulo.setWordWrap(True)
+        subtitulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        nombre_jesus.setStyleSheet("font-size: 30px; font-weight: bold;")
+        nombre_jesus.setWordWrap(True)
+        nombre_jesus.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        nombre_cristian.setStyleSheet("font-size: 30px; font-weight: bold;")
+        nombre_cristian.setWordWrap(True)
+        nombre_cristian.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        descripcion_texto = "\n\nHotel Finito, la aplicacion que necesitas para administrar tu hotel.\n\n" \
+                            "Ofrece diversas funcionalidades para gestionar reservas, habitaciones y facturación.\n" \
+                            "Gestionar reservas para añadir toda la informacion del Cliente\n" \
+                            "Gestiona habitaciones para ver el estado de las habitaciones y liberarlas\n" \
+                            "Gestionar facturación para ver el estado de las facturas y confirmar el pago.\n" \
+
+        descripcion = QLabel(descripcion_texto)
+        descripcion.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        descripcion.setWordWrap(True)
+        descripcion.setStyleSheet("font-size: 20px; font-weight: bold;")
+        
+
+        descripcion_ayuda = QLabel("En la opcion de Archivo en el menu puedes cambiar de tema a la aplicacion")
+        descripcion_ayuda.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        descripcion_ayuda.setWordWrap(True)
+        descripcion_ayuda.setStyleSheet("font-size: 15px;")
+
+
+        grid_layout.addWidget(titulo, 0, 0)
+        grid_layout.addWidget(subtitulo, 1, 0)
+        grid_layout.addWidget(nombre_jesus, 2, 0)
+        grid_layout.addWidget(nombre_cristian, 3, 0)
+        grid_layout.addWidget(descripcion, 4, 0)
+        grid_layout.addWidget(descripcion_ayuda, 5, 0)
+
+        form_layout.addLayout(grid_layout)
+        form_layout.setAlignment(grid_layout, Qt.AlignCenter)
+
+        main_layout.addWidget(form_container)
+
+        
+        self.central_widget = main_layout
+
 
     def reservas_recepcion_ui(self):
+        self.detener_temporizador()
         self.setStyleSheet(open('styles.qss').read())
         if self.central_widget:
             self.central_widget.deleteLater()
@@ -392,6 +470,7 @@ class MainWindow(QMainWindow):
         self.central_widget = main_layout
 
     def gestion_habitacion_ui(self):
+        self.timer.stop()
         self.setStyleSheet(open('styles.qss').read())
         if self.central_widget:
             self.central_widget.deleteLater()
@@ -535,27 +614,12 @@ class MainWindow(QMainWindow):
         self.longitud_minima = 10
         main_layout = QHBoxLayout(central_widget)
 
-        # Formulario en la izquierda
-        form_container = QWidget()
-        width = 300
-        form_container.setMaximumWidth(width)  # Ancho máximo deseado
-        form_container.setMinimumWidth(width)
-        form_layout = QVBoxLayout(form_container)
 
         grid_layout = QGridLayout()
 
         int_validator = QIntValidator()
 
-        no_habitacion_label = QLabel("N° Habitacion:")
-        self.no_habitacion_input = QComboBox()
-        self.no_habitacion_input.setCursor(Qt.PointingHandCursor)
-        self.no_habitacion_input.addItems(["01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
-                                           "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
-                                           "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-                                           "31", "32", "33", "34", "35", "36", "37", "38", "39", "40",])
         
-        grid_layout.addWidget(no_habitacion_label, 0, 0)  # Fila 0, Columna 0
-        grid_layout.addWidget(self.no_habitacion_input, 0, 1)  # Fila 0, Columna 1
 
 
         self.table_facturacion = QTableWidget(self)
@@ -564,8 +628,6 @@ class MainWindow(QMainWindow):
         self.table_facturacion.setColumnCount(7)  # Ajusta el número de columnas según tus necesidades
         self.table_facturacion.setHorizontalHeaderLabels(["ID Hotel", "Nombre", "Habitaciones Escogidas", "Total", "Valor a Pagar", "Estado Saldo", "Confirmar"])  # Ajusta las etiquetas
 
-        form_layout.addLayout(grid_layout)
-        main_layout.addWidget(form_container)
         self.cargar_y_guardar_datos_facturacion(self.table_facturacion)
         self.table_facturacion.resizeRowsToContents()
         main_layout.addWidget(self.table_facturacion)
@@ -827,7 +889,9 @@ class MainWindow(QMainWindow):
             self.actualizar_tabla_facturacion(self.table_facturacion)
             print(f"Fila a cambiar el estado: {self.reservas_data}")
             print(f"Fila a cambiar el estado: {row}, Codigo: {id_hotel}")
+            QMessageBox.information(self, "Pago Confirmado", "El pago ha sido confirmado.")
             self.guardar_facturacion_csv()
+            self.gestion_facturacion_ui()
             
         valor = "Pagado"
 
@@ -1430,66 +1494,6 @@ class MainWindow(QMainWindow):
                 self.scroll_area.takeItem(index)
                 break
     
-    def actualizar_hora(self):
-        current_time = QDateTime.currentDateTime()
-        hora_actual = current_time.toString("HH:mm:ss")
-        fecha_actual = current_time.toString("dd-MM-yyyy")
-        self.campo_horac.setText(f"Hora: {hora_actual}\nFecha: {fecha_actual}")
-
-
-    def mostrar_ayuda(self, index):
-        if index == 0:  # Índice 1 corresponde a "Ayuda"
-            mensaje = "Gestion de usuarios agrega, edita a los clientes quienes seran agregados con su respectiva habitacion."
-            
-            # Crear un objeto QMessageBox
-            message_box = QMessageBox(self)
-            message_box.setWindowTitle("GESTION USUARIOS")
-            message_box.setText(mensaje)
-            # icono
-            icon_path = "./icons/usuario.png"  # Reemplaza con la ruta de tu icono
-            icon_pixmap = QPixmap(icon_path)
-            icon_size = QSize(64, 64)  # Tamaño deseado del icono
-            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            message_box.setIconPixmap(icon_pixmap)
-            
-            message_box.addButton(QMessageBox.Ok)
-            
-            message_box.exec_()
-
-        if index ==1:
-            mensaje = "gestion de habitaciones, este apartado te permite poder agregar, cambiar estado y visualizar las habitaciones."
-            
-            # Crear un objeto QMessageBox
-            message_box = QMessageBox(self)
-            message_box.setWindowTitle("GESTION HABITACIONES")
-            message_box.setText(mensaje)
-            # icono
-            icon_path = "./icons/habitaciones.png"  # Reemplaza con la ruta de tu icono
-            icon_pixmap = QPixmap(icon_path)
-            icon_size = QSize(64, 64)  # Tamaño deseado del icono
-            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            message_box.setIconPixmap(icon_pixmap)
-            
-            message_box.addButton(QMessageBox.Ok)
-            
-            message_box.exec_()
-        if index ==2:
-            mensaje = "Facturacion, este apartado se encarga de cobrar el valor que se calculara por dias estancia y tipo habitacion"
-            
-            # Crear un objeto QMessageBox
-            message_box = QMessageBox(self)
-            message_box.setWindowTitle("FACTURACION")
-            message_box.setText(mensaje)
-            # icono
-            icon_path = "./icons/facturacion.png"  # Reemplaza con la ruta de tu icono
-            icon_pixmap = QPixmap(icon_path)
-            icon_size = QSize(64, 64)  # Tamaño deseado del icono
-            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            message_box.setIconPixmap(icon_pixmap)
-            
-            message_box.addButton(QMessageBox.Ok)
-            
-            message_box.exec_()
 
     def actualizar_estado_habitaciones_seleccionadas(self):
         nuevo_estado = "Ocupada"
@@ -1694,6 +1698,74 @@ class MainWindow(QMainWindow):
                 table.item(row, 2).setForeground(QtGui.QColor(255, 255, 255))  # Letras blancas
                 # Letras Bold
                 table.item(row, 2).setFont(QtGui.QFont("Arial", 10, QtGui.QFont.Bold))
+
+    def actualizar_hora(self, campo_horac):
+        current_time = QDateTime.currentDateTime()
+        hora_actual = current_time.toString("HH:mm:ss")
+        fecha_actual = current_time.toString("dd-MM-yyyy")
+        tiempo_actual = f"Hora: {hora_actual}\nFecha: {fecha_actual}"
+        campo_horac.setText(tiempo_actual)
+
+    def detener_temporizador(self):
+        self.timer.stop()
+
+    def closeEvent(self, event):
+        self.detener_temporizador()
+        event.accept()
+
+
+    def mostrar_ayuda(self, index):
+        if index == 0:  # Índice 1 corresponde a "Ayuda"
+            mensaje = "Gestion de usuarios agrega, edita a los clientes quienes seran agregados con su respectiva habitacion."
+
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("GESTION USUARIOS")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/usuario.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+
+            message_box.addButton(QMessageBox.Ok)
+
+            message_box.exec()
+        if index ==1:
+            mensaje = "gestion de habitaciones, este apartado te permite poder agregar, cambiar estado y visualizar las habitaciones."
+
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("GESTION HABITACIONES")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/habitaciones.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+
+            message_box.addButton(QMessageBox.Ok)
+
+            message_box.exec()
+        if index ==2:
+            mensaje = "Facturacion, este apartado se encarga de cobrar el valor que se calculara por dias estancia y tipo habitacion"
+
+            # Crear un objeto QMessageBox
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("FACTURACION")
+            message_box.setText(mensaje)
+            # icono
+            icon_path = "./icons/facturacion.png"  # Reemplaza con la ruta de tu icono
+            icon_pixmap = QPixmap(icon_path)
+            icon_size = QSize(64, 64)  # Tamaño deseado del icono
+            icon_pixmap = icon_pixmap.scaled(icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            message_box.setIconPixmap(icon_pixmap)
+
+            message_box.addButton(QMessageBox.Ok)
+
+            message_box.exec()
 
 
 if __name__ == "__main__":

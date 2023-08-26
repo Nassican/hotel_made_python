@@ -9,14 +9,14 @@ Veneno,1238777777,00000003,1234878964,25/08/2023,26/08/2023,N°: 08 - Tipo: Doble
 N°: 27 - Tipo: Doble
 N°: 28 - Tipo: Doble
 ",16,Tarjeta de Credito,Pagado
-Beelzebu,1597846230,00000004,1548962357,25/08/2023,29/08/2023,N°: 03 - Tipo: Doble,True,"N°: 05 - Tipo: Doble
+Beelzebu,1597846230,00000004,1548962357,25/08/2023,29/08/2023,N°: 03 - Tipo: Doble,No,"N°: 05 - Tipo: Doble
 N°: 06 - Tipo: Doble
 N°: 07 - Tipo: Doble
 N°: 08 - Tipo: Doble
 N°: 04 - Tipo: Doble
 ",24,Tarjeta de Credito,Pagado
-andrew,7845954651,00000005,1231111111,25/08/2023,26/08/2023,N°: 10 - Tipo: Doble,Sí,"N°: 29 - Tipo: Doble
-N°: 30 - Tipo: Doble
-N°: 31 - Tipo: Suite
-N°: 32 - Tipo: Suite
-",20,Tarjeta de Credito,Pendiente
+andrew,7845954651,00000005,1231111111,25/08/2023,26/08/2023,N°: 03 - Tipo: Doble,True,"N°: 04 - Tipo: Doble
+N°: 05 - Tipo: Doble
+N°: 06 - Tipo: Doble
+N°: 07 - Tipo: Doble
+",20,Tarjeta de Credito,Pagado

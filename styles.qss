@@ -47,3 +47,4 @@ QTableWidget::item[rightAligned] {
     padding-right: 10px;
 }
 
+

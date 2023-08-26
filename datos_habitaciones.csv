@@ -8,7 +8,7 @@ N° Habitacion,Estado,Tipo de Habitación
 07,Disponible,Doble
 08,Disponible,Doble
 09,Disponible,Doble
-10,Ocupada,Doble
+10,Disponible,Doble
 11,Disponible,Doble
 12,Disponible,Doble
 13,Disponible,Doble
@@ -27,10 +27,10 @@ N° Habitacion,Estado,Tipo de Habitación
 26,Disponible,Doble
 27,Disponible,Doble
 28,Disponible,Doble
-29,Ocupada,Doble
-30,Ocupada,Doble
-31,Ocupada,Suite
-32,Ocupada,Suite
+29,Disponible,Doble
+30,Disponible,Doble
+31,Disponible,Suite
+32,Disponible,Suite
 33,Disponible,Suite
 34,Disponible,Suite
 35,Disponible,Suite
